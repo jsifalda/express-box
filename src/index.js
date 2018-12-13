@@ -1,3 +1,5 @@
+const buildResolver = require('./buildResolver')
+
 const build = (items, args) => {
   return (items || []).reduce((obj, builder) => {
     return {
@@ -15,7 +17,22 @@ const getModel = (modules) => {
 
 const getResolvers = (modules) => {
   return (...args) => {
-    return build(modules.resolvers, args)
+    return (modules.resolvers || [])
+      .map((builder) => {
+        return builder(...args)
+      })
+      .map((resolver) => {
+        return Object.keys(resolver || {}).reduce((o, key) => {
+          o[key] = buildResolver(resolver[key])
+          return o
+        }, {})
+      })
+      .reduce((obj, resolver) => {
+        return {
+          ...obj,
+          ...resolver
+        }
+      }, {})
   }
 }
 
