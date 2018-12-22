@@ -13,8 +13,13 @@ const execute = (callbacks) => {
 }
 
 const buildResolver = (middleware) => {
+  if (middleware && !Array.isArray(middleware)) {
+    middleware = [middleware]
+  }
+
   return async (req, context) => {
     req.$middleware = {}
+
     const callbacks = middleware.map((cb) => {
       return (done) => {
         cb(req, context, (value) => {
