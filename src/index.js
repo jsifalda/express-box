@@ -19,6 +19,10 @@ const getResolvers = (modules) => {
   return (...args) => {
     return (modules.resolvers || [])
       .map((builder) => {
+        if (typeof builder !== 'function') {
+          throw new Error('Builder resolver should be builder function')
+        }
+
         return builder(...args)
       })
       .map((resolver) => {
