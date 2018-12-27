@@ -1,6 +1,6 @@
 {
   "name": "express-box",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Express-friendly bundler for modular architecture'",
   "main": "src/index.js",
   "scripts": {

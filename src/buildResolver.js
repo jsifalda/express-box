@@ -18,15 +18,14 @@ const buildResolver = (middleware) => {
   }
 
   return async (req, context) => {
-    req.$middleware = {}
-
     const callbacks = middleware.map((cb) => {
       return (done) => {
         cb(req, context, (value) => {
-          req.$middleware = {
-            ...req.$middleware,
+          req = {
+            ...req,
             ...(value || {})
           }
+
           if (value instanceof Error) {
             done(value)
           } else {
