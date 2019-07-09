@@ -40,14 +40,30 @@ const getResolvers = (modules) => {
   }
 }
 
-const getContext = (modules) => {
-  return (...args) => {
-    return build(modules.context, args)
+const getContext = (modules, getModel) => {
+  return (config) => {
+    const intermediate = build(modules.context, [config])
+    const context = {
+      ...intermediate,
+      ...config,
+      models: getModel(intermediate)
+    }
+
+    Object.keys(context).forEach((key) => {
+      const value = context[key]
+      if (Array.isArray(value.afterContext)) {
+        value.afterContext.forEach((callback) => {
+          callback(context)
+        })
+      }
+    })
+
+    return context
   }
 }
 
 const ExpressBox = (modules) => {
-  const build = (modules || []).reduce((obj, { resolvers, model, context }) => {
+  const converged = (modules || []).reduce((obj, { resolvers, model, context }) => {
     return {
       ...obj,
       resolvers: resolvers ? [...(obj.resolvers || []), resolvers] : obj.resolvers,
@@ -57,9 +73,8 @@ const ExpressBox = (modules) => {
   }, {})
 
   return {
-    getModel: getModel(build),
-    getResolvers: getResolvers(build),
-    getContext: getContext(build)
+    getResolvers: getResolvers(converged),
+    getContext: getContext(converged, getModel(converged))
   }
 }
 
